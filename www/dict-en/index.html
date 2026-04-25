@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-Hans">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="creater" content="DeepSeek v3" />
+        <title>英语词典</title>
+        <link rel="stylesheet" href="../style/fontawesome.min.css" />
+        <link rel="stylesheet" href="../style/solid.min.css" />
+        <link rel="stylesheet" href="../style/base.css" />
+        <link rel="stylesheet" href="../style/pager.css" />
+        <link rel="stylesheet" href="../style/dialogs.css" />
+        <link rel="stylesheet" href="./style.css" />
+        <script src="../libs/jquery-3.7.1.min.js"></script>
+        <script src="../libs/utils.js"></script>
+        <script src="../libs/pager.js"></script>
+        <script src="../libs/dialogs.js"></script>
+    </head>
+    <body>
+        <div id="searchContainer" class="container">
+            <input
+                type="text"
+                inputmode="text"
+                lang="en"
+                id="inputBox"
+                placeholder="在这里输入内容..."
+                autofocus
+            />
+            <button id="lookupButton">搜索</button>
+        </div>
+        <ul id="outputBox" class="container"></ul>
+        <div id="pager" class="pager"></div>
+    </body>
+
+    <script>
+        const PAGE_SIZE = 10
+        const pager = CreatePager("pager", 5, (n) => showPage(n))
+        const dialogs = CreateDialogs()
+
+        let results = []
+        let isChn = false
+
+        $("#lookupButton").on("click", () => {
+            lookup()
+        })
+
+        $("#inputBox").on("keydown", function (event) {
+            if (event.key === "Enter") {
+                lookup()
+            }
+        })
+
+        window.Android && window.Android.showIme()
+
+        function genWord(w) {
+            const span = $("<span>")
+            span.text(w)
+            if (window.speechSynthesis) {
+                const button = $(`<i class="fa-solid fa-volume-low"></i>`)
+                button.on("click", () => {
+                    const utt = new SpeechSynthesisUtterance(w)
+                    window.speechSynthesis.speak(utt)
+                })
+                span.append(button)
+            }
+            return span
+        }
+
+        function toLi(d) {
+            const li = $("<li>")
+            const css = { "font-family": "auto", "font-size": "0.8rem" }
+            li.append(genWord(d.word))
+            if (d.phonetic) {
+                li.append($("<pre>").css(css).text(`/${d.phonetic}/`))
+            }
+            if (d.exchange) {
+                li.append($("<pre>").css(css).text(`/${d.exchange}`))
+            }
+            if (d.translation) {
+                const t = d.translation
+                li.append($("<pre>").text(t))
+            }
+            return li
+        }
+
+        function showPage(cur) {
+            const data = results || []
+            const start = Math.max(0, (cur - 1) * PAGE_SIZE)
+            const end = Math.min(start + PAGE_SIZE, data.length)
+            const ul = $("#outputBox")
+            ul.empty()
+            if (end <= start) {
+                ul.append($("<li>查无结果</li>"))
+                return
+            }
+            for (let i = start; i < end; i++) {
+                const li = toLi(data[i])
+                ul.append(li)
+            }
+        }
+
+        function lookup() {
+            const keyword = ($("#inputBox").val() || "").toLowerCase()
+            if (!keyword) {
+                showResult(null, "", [])
+                return
+            }
+
+            isChn = !utils.isAlphabet(keyword)
+
+            const req = {
+                ["IsChn"]: isChn,
+                ["Keyword"]: keyword,
+            }
+
+            const done = new Promise((resolve) => {
+                utils
+                    .fetch("dict-en", req)
+                    .then((data) => showResult(resolve, keyword, data))
+                    .catch((error) =>
+                        showResult(resolve, "", errorResults(error)),
+                    )
+            })
+
+            dialogs.loading("拼命搜索中", done, "../res/loading.svg")
+        }
+
+        function errorResults(error) {
+            return [
+                {
+                    ["word"]: error.name || "unknow error",
+                    ["translation"]: error.message,
+                },
+            ]
+        }
+
+        function showResult(resolve, keyword, data) {
+            try {
+                const kws = [...keyword]
+                if (isChn) {
+                    results = data.sort((a, b) => {
+                        a.cmarks =
+                            a.cmarks ||
+                            utils.marks(
+                                kws,
+                                utils.removeAlphabet(a.translation),
+                            )
+                        b.cmarks =
+                            b.cmarks ||
+                            utils.marks(
+                                kws,
+                                utils.removeAlphabet(b.translation),
+                            )
+                        return a.cmarks - b.cmarks
+                    })
+                } else {
+                    results = data.sort((a, b) => {
+                        a.emarks = a.emarks || utils.marks(kws, a.word)
+                        b.emarks = b.emarks || utils.marks(kws, b.word)
+                        return a.emarks - b.emarks
+                    })
+                }
+            } catch (err) {
+                results = errorResults(err)
+            } finally {
+                resolve && resolve()
+            }
+            const pns = Math.ceil(results.length / PAGE_SIZE)
+            pager.goto(1, pns)
+        }
+    </script>
+</html>
