@@ -79,7 +79,14 @@ function CreateUtils() {
         return max
     }
 
+    function scrollToTop() {
+        // window.scrollTo({ top: 0, behavior: "smooth" })
+        window.scrollTo({ top: 0 })
+    }
+
     return {
+        scrollToTop,
+
         // fetch(tag: string, req: object, timeoutMs: int)
         fetch,
 
