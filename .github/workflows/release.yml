@@ -54,6 +54,9 @@ jobs:
       - name: Create release and upload asset
         uses: softprops/action-gh-release@v3
         with:
+          body: |
+            [update-log.md](docs/update-log.md)  
+            下载下面的 dict.zip 解压到任意目录。  
           tag_name: ${{ steps.tag.outputs.tag_name }}
           create_tag: true
           files: dict.zip

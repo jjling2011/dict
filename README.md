@@ -1,4 +1,4 @@
-Dict 是一个免费无广、绿色的词典软件。自带英文、中文字、成语、歇后语词库，本地使用不需要网络。
+Dict 是一个免费无广绿色的词典软件。自带英文、中文字、成语、歇后语词库，本地运行不需要网络。
 
 这是 windows 版，系统需要 .net framework 4.8 运行时。还有个安卓同款软件 [toolsbox](http://github.com/jjling2011/toolsbox)。
 
