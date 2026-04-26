@@ -32,7 +32,7 @@ jobs:
       - name: Download and extract database
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri "$env.DICT_DB_ZIP" -OutFile 'dictdb.zip'
+          Invoke-WebRequest -Uri "${env:DICT_DB_ZIP}" -OutFile 'dictdb.zip'
           New-Item -ItemType Directory -Force -Path 'bin\Release\dictdb'
           Expand-Archive -Path 'dictdb.zip' -DestinationPath 'bin\Release\dictdb' -Force
 
