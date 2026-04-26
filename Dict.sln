@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{02EA68
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		README.md = README.md
+		.github\workflows\release.yml = .github\workflows\release.yml
 		docs\update-log.md = docs\update-log.md
 	EndProjectSection
 EndProject
