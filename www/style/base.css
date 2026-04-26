@@ -11,12 +11,62 @@ html {
 body {
     flex-direction: column;
     display: flex;
-    width: 90%;
-    margin: 1rem auto;
+    width: 93%;
+    margin: 4rem auto;
     max-width: 30rem;
+}
+
+a {
+    color: white;
+    text-decoration: none;
 }
 
 ul {
     list-style-type: none;
     padding: 0;
+}
+
+.user-input:focus-visible {
+    /* outline: lightgray 0.15rem solid; */
+    outline: none;
+}
+
+.user-input {
+    border-radius: 0.4rem;
+    border: 1px solid #888;
+    line-height: 1rem;
+    height: 1.2rem;
+}
+
+.nav-bar {
+    background-color: snow;
+    z-index: 10;
+    position: fixed;
+    left: 0;
+    width: 100%;
+    top: 0;
+    display: flex;
+}
+
+.nav-bar span {
+    margin: 0.5rem 1.2rem;
+    padding-left: 0.5rem;
+    flex-grow: 1;
+    display: inline-block;
+    font-size: 1.5rem;
+}
+
+.nav-bar a {
+    margin: 0.5rem 1rem;
+    font-size: 1rem;
+    width: 4rem;
+    padding: 0.5rem;
+    display: inline-block;
+    background-color: #dfa51e77;
+    border-radius: 1.5rem;
+    text-align: center;
+}
+
+.nav-bar a:hover {
+    background-color: #dfa51eb9;
 }

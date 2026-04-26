@@ -18,8 +18,12 @@ namespace Dict
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // 从托盘图标打开和直接运行速度差不多
             // NotifyIcon nicon = CreateNotifyIcon();
+            // Application.Run();
+
             Application.Run(new WebWindow());
+
             // nicon.Visible = false;
         }
 

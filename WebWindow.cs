@@ -23,14 +23,10 @@ namespace Dict
         private readonly string dbConnString;
         private readonly string rootIndexPath;
         private readonly string startupPath;
-        private readonly string formTitle;
 
         public WebWindow()
         {
             InitializeComponent();
-
-            // save title
-            formTitle = this.Text;
 
             startupPath = Application.StartupPath;
             rootIndexPath = Path.Combine(startupPath, "www", "index.html");
@@ -61,13 +57,15 @@ namespace Dict
                 this.StartPosition = FormStartPosition.CenterScreen;
             }
 
+            labelLoading.Left = (this.Width - labelLoading.Width) / 2;
+            labelLoading.Top = (this.Height - labelLoading.Height) / 3;
+
             // init web view
             await webView.EnsureCoreWebView2Async(null);
             webView.CoreWebView2.WebMessageReceived += WebView_WebMessageReceived;
             webView.CoreWebView2.NavigationCompleted += (o, evt) =>
             {
-                var subTitle = webView.CoreWebView2.DocumentTitle;
-                this.Text = $"{formTitle} - {subTitle}";
+                labelLoading.Visible = false;
                 var localPath = webView.Source.LocalPath;
                 if (localPath != Properties.Settings.Default.LastUrl)
                 {
@@ -77,6 +75,8 @@ namespace Dict
             };
 
             LoadLastUrl();
+            // debug
+            // Navigate(rootIndexPath);
         }
 
         private void LoadLastUrl()
@@ -92,25 +92,7 @@ namespace Dict
                 }
             }
             catch { }
-            btnHome.PerformClick();
-        }
-
-        private void btnDictEn_Click(object sender, EventArgs e)
-        {
-            var path = Path.Combine(startupPath, "www", "dict-en", "index.html");
-            Navigate(path);
-        }
-
-        private void btnDictCn_Click(object sender, EventArgs e)
-        {
-            var path = Path.Combine(startupPath, "www", "dict-cn", "index.html");
-            Navigate(path);
-        }
-
-        private void btnListCalc_Click(object sender, EventArgs e)
-        {
-            var path = Path.Combine(startupPath, "www", "list-calc", "index.html");
-            Navigate(path);
+            Navigate(rootIndexPath);
         }
 
         private void WebWindow_FormClosing(object sender, FormClosingEventArgs e)
@@ -151,20 +133,16 @@ namespace Dict
             MessageBox.Show(message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        void Navigate(string path)
+        void Navigate(string localPath)
         {
-            if (!File.Exists(path))
+            if (!File.Exists(localPath))
             {
-                path = rootIndexPath;
+                localPath = rootIndexPath;
             }
-            string url = new Uri(path).AbsoluteUri;
+            string url = new Uri(localPath).AbsoluteUri;
             webView.CoreWebView2.Navigate(url);
         }
 
-        private void BtnHome_Click(object sender, EventArgs e)
-        {
-            Navigate(rootIndexPath);
-        }
         #endregion
 
         #region handle web request
